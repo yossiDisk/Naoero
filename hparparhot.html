@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>מקלדת חפרפרות</title>
 
     <style>
@@ -13,8 +14,11 @@
         }
 
         body {
+
             margin: 0;
+
             overflow: hidden;
+
             font-family: Arial, sans-serif;
 
             background:
@@ -26,23 +30,33 @@
                     #58a84b 100%
                 );
 
-            height: 100vh;
+            min-height: 100vh;
         }
 
         h1 {
+
             text-align: center;
-            margin-top: 16px;
+
+            margin-top: 14px;
             margin-bottom: 10px;
+
             color: #222;
-            font-size: 42px;
+
+            font-size: clamp(28px, 4vw, 42px);
         }
 
         .top-bar {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
 
-            font-size: 28px;
+            display: flex;
+
+            justify-content: center;
+
+            gap: 30px;
+
+            flex-wrap: wrap;
+
+            font-size: clamp(18px, 2.6vw, 28px);
+
             font-weight: bold;
 
             color: #222;
@@ -51,16 +65,21 @@
         }
 
         .instructions {
+
             text-align: center;
-            font-size: 20px;
+
+            font-size: clamp(16px, 2vw, 20px);
+
             margin-bottom: 20px;
+
             color: #333;
+
+            padding-inline: 12px;
         }
 
         .game-board {
 
-            width: 950px;
-            max-width: 95vw;
+            width: min(950px, 94vw);
 
             margin: auto;
 
@@ -68,14 +87,16 @@
 
             grid-template-columns: repeat(3, 1fr);
 
-            gap: 30px;
+            gap: clamp(12px, 2vw, 30px);
+
+            padding-bottom: 20px;
         }
 
         .hole {
 
             position: relative;
 
-            height: 200px;
+            aspect-ratio: 1.5 / 1;
 
             background: #4f3528;
 
@@ -102,13 +123,14 @@
         }
 
         .mole.show {
-            bottom: 10px;
+            bottom: 8px;
         }
 
         .keycap {
 
-            width: 130px;
-            height: 130px;
+            width: clamp(80px, 12vw, 130px);
+
+            height: clamp(80px, 12vw, 130px);
 
             background: white;
 
@@ -132,7 +154,7 @@
 
         .english {
 
-            font-size: 44px;
+            font-size: clamp(30px, 4vw, 44px);
 
             font-weight: bold;
 
@@ -143,9 +165,9 @@
 
         .hebrew {
 
-            font-size: 24px;
+            font-size: clamp(16px, 2vw, 24px);
 
-            margin-top: 8px;
+            margin-top: 6px;
 
             color: #666;
         }
@@ -154,9 +176,9 @@
 
             position: absolute;
 
-            top: -24px;
+            top: -18px;
 
-            font-size: 42px;
+            font-size: clamp(28px, 4vw, 42px);
 
             animation: bounce 0.7s infinite alternate;
         }
@@ -172,15 +194,11 @@
             }
         }
 
-        /* ========================= */
-        /* פטיש */
-        /* ========================= */
-
         .hammer {
 
             position: absolute;
 
-            top: -95px;
+            top: -75px;
 
             left: 50%;
 
@@ -189,7 +207,7 @@
                 rotate(-10deg)
                 scale(0.7);
 
-            font-size: 120px;
+            font-size: clamp(70px, 10vw, 120px);
 
             opacity: 0;
 
@@ -240,10 +258,6 @@
             }
         }
 
-        /* ========================= */
-        /* אפקט פגיעה */
-        /* ========================= */
-
         .hit-effect {
             animation: hitSquash 0.18s ease;
         }
@@ -267,18 +281,20 @@
 
             text-align: center;
 
-            margin-top: 24px;
+            margin-top: 18px;
 
-            font-size: 18px;
+            font-size: clamp(14px, 2vw, 18px);
 
             color: #222;
+
+            padding-inline: 10px;
         }
 
         /* ========================= */
-        /* מסך התחלה */
+        /* OVERLAY */
         /* ========================= */
 
-        .warmup-screen {
+        .overlay {
 
             position: fixed;
 
@@ -294,16 +310,15 @@
             z-index: 999;
         }
 
-        .warmup-box {
+        .overlay-box {
 
             background: white;
 
-            width: 500px;
-            max-width: 90vw;
+            width: min(520px, 92vw);
 
             border-radius: 24px;
 
-            padding: 40px;
+            padding: 40px 24px;
 
             text-align: center;
 
@@ -311,18 +326,18 @@
                 0 20px 40px rgba(0,0,0,0.3);
         }
 
-        .warmup-box h2 {
+        .overlay-box h2 {
 
             margin-top: 0;
 
-            font-size: 40px;
+            font-size: clamp(28px, 4vw, 40px);
         }
 
-        .warmup-box p {
+        .overlay-box p {
 
-            font-size: 22px;
+            font-size: clamp(18px, 2.4vw, 22px);
 
-            margin-bottom: 24px;
+            line-height: 1.5;
         }
 
         .warmup-keys {
@@ -331,9 +346,11 @@
 
             justify-content: center;
 
+            flex-wrap: wrap;
+
             gap: 16px;
 
-            margin-bottom: 20px;
+            margin-block: 24px;
         }
 
         .warmup-key {
@@ -383,11 +400,15 @@
             opacity: 0.7;
         }
 
-        .warmup-hint {
+        .countdown {
 
-            font-size: 18px;
+            font-size: clamp(70px, 15vw, 140px);
 
-            color: #666;
+            font-weight: bold;
+
+            color: #ffda44;
+
+            margin-top: 20px;
         }
 
     </style>
@@ -395,20 +416,55 @@
 
 <body>
 
-    <div id="warmup-screen" class="warmup-screen">
+    <!-- ========================= -->
+    <!-- חימום -->
+    <!-- ========================= -->
 
-        <div class="warmup-box">
+    <div id="warmup-screen" class="overlay">
+
+        <div class="overlay-box">
 
             <h2>⌨️ בדיקת מקלדת</h2>
 
             <p>
-                לחץ על המקשים הבאים כדי להתחיל
+                לחץ על 3 המקשים הבאים<br>
+                בכל סדר שתרצה
             </p>
 
             <div id="warmup-keys" class="warmup-keys"></div>
 
-            <div class="warmup-hint">
+            <p>
                 ודא שהמקלדת באנגלית 🙂
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- ========================= -->
+    <!-- ספירה לאחור -->
+    <!-- ========================= -->
+
+    <div
+        id="countdown-screen"
+        class="overlay"
+        style="display:none;"
+    >
+
+        <div class="overlay-box">
+
+            <h2>🎯 מוכנים?</h2>
+
+            <p>
+                עכשיו לחץ על מקשי המקלדת<br>
+                כדי להכות בחפרפרות!
+            </p>
+
+            <div
+                id="countdown"
+                class="countdown"
+            >
+                3
             </div>
 
         </div>
@@ -418,8 +474,17 @@
     <h1>🎯 מקלדת חפרפרות</h1>
 
     <div class="top-bar">
-        <div>ניקוד: <span id="score">0</span></div>
-        <div>שלב: <span id="level">1</span></div>
+
+        <div>
+            ניקוד:
+            <span id="score">0</span>
+        </div>
+
+        <div>
+            שלב:
+            <span id="level">1</span>
+        </div>
+
     </div>
 
     <div class="instructions">
@@ -448,16 +513,26 @@
 
         ];
 
-        const board = document.getElementById("board");
+        const board =
+            document.getElementById("board");
 
-        const scoreEl = document.getElementById("score");
-        const levelEl = document.getElementById("level");
+        const scoreEl =
+            document.getElementById("score");
+
+        const levelEl =
+            document.getElementById("level");
 
         const warmupScreen =
             document.getElementById("warmup-screen");
 
         const warmupKeysContainer =
             document.getElementById("warmup-keys");
+
+        const countdownScreen =
+            document.getElementById("countdown-screen");
+
+        const countdownEl =
+            document.getElementById("countdown");
 
         let score = 0;
         let level = 1;
@@ -468,11 +543,10 @@
         let gameStarted = false;
 
         let warmupKeys = [];
-        let warmupIndex = 0;
 
-        /* ========================= */
-        /* יצירת חורים */
-        /* ========================= */
+        // =========================
+        // יצירת חורים
+        // =========================
 
         for (let i = 0; i < 9; i++) {
 
@@ -494,9 +568,9 @@
         const holes =
             document.querySelectorAll(".hole");
 
-        /* ========================= */
-        /* פונקציות עזר */
-        /* ========================= */
+        // =========================
+        // עזר
+        // =========================
 
         function randomKey() {
 
@@ -525,28 +599,38 @@
             );
         }
 
-        /* ========================= */
-        /* מסך חימום */
-        /* ========================= */
+        // =========================
+        // חימום
+        // =========================
 
         function startWarmup() {
 
             warmupKeys = [];
 
-            warmupIndex = 0;
-
             warmupKeysContainer.innerHTML = "";
 
-            for (let i = 0; i < 3; i++) {
+            while (warmupKeys.length < 3) {
 
                 const key = randomKey();
 
-                warmupKeys.push(key);
+                if (
+                    !warmupKeys.find(
+                        k => k.en === key.en
+                    )
+                ) {
+                    warmupKeys.push(key);
+                }
+            }
+
+            warmupKeys.forEach((key) => {
 
                 const el =
                     document.createElement("div");
 
                 el.className = "warmup-key";
+
+                el.dataset.key =
+                    key.en.toLowerCase();
 
                 el.innerHTML = `
                     ${key.en}
@@ -554,18 +638,46 @@
                 `;
 
                 warmupKeysContainer.appendChild(el);
-            }
+            });
         }
 
-        /* ========================= */
-        /* הצגת חפרפרת */
-        /* ========================= */
+        function startCountdown() {
+
+            warmupScreen.style.display = "none";
+
+            countdownScreen.style.display = "flex";
+
+            let count = 3;
+
+            countdownEl.textContent = count;
+
+            const interval = setInterval(() => {
+
+                count--;
+
+                countdownEl.textContent = count;
+
+                if (count <= 0) {
+
+                    clearInterval(interval);
+
+                    countdownScreen.style.display = "none";
+
+                    gameStarted = true;
+
+                    showMole();
+                }
+
+            }, 1000);
+        }
+
+        // =========================
+        // חפרפרת
+        // =========================
 
         function showMole() {
 
-            if (activeMole) {
-                return;
-            }
+            if (activeMole) return;
 
             const hole = randomHole();
 
@@ -612,59 +724,55 @@
             }, visibleTime);
         }
 
-        /* ========================= */
-        /* מקלדת */
-        /* ========================= */
+        // =========================
+        // מקלדת
+        // =========================
 
         document.addEventListener("keydown", (e) => {
 
             const pressedKey =
                 e.key.toLowerCase();
 
-            /* ========================= */
-            /* חימום */
-            /* ========================= */
+            // =========================
+            // חימום
+            // =========================
 
             if (!gameStarted) {
 
-                const currentKey =
-                    warmupKeys[warmupIndex];
+                const warmupEls =
+                    document.querySelectorAll(".warmup-key");
 
-                if (
-                    pressedKey ===
-                    currentKey.en.toLowerCase()
-                ) {
-
-                    const warmupEls =
-                        document.querySelectorAll(".warmup-key");
-
-                    warmupEls[warmupIndex]
-                        .classList.add("done");
-
-                    warmupIndex++;
+                warmupEls.forEach((el) => {
 
                     if (
-                        warmupIndex >= warmupKeys.length
+                        el.dataset.key === pressedKey &&
+                        !el.classList.contains("done")
                     ) {
 
-                        setTimeout(() => {
-
-                            warmupScreen.style.display = "none";
-
-                            gameStarted = true;
-
-                            showMole();
-
-                        }, 500);
+                        el.classList.add("done");
                     }
+                });
+
+                const allDone =
+                    [...warmupEls].every(
+                        el => el.classList.contains("done")
+                    );
+
+                if (allDone) {
+
+                    setTimeout(() => {
+
+                        startCountdown();
+
+                    }, 500);
                 }
 
                 return;
             }
 
-            /* ========================= */
-            /* משחק */
-            /* ========================= */
+            // =========================
+            // משחק
+            // =========================
 
             if (!activeMole) return;
 
@@ -701,9 +809,9 @@
             }
         });
 
-        /* ========================= */
-        /* התחלה */
-        /* ========================= */
+        // =========================
+        // התחלה
+        // =========================
 
         startWarmup();
 

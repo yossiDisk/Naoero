@@ -7,6 +7,7 @@
     <title>מקלדת חפרפרות</title>
 
     <style>
+
         * {
             box-sizing: border-box;
         }
@@ -15,8 +16,16 @@
             margin: 0;
             overflow: hidden;
             font-family: Arial, sans-serif;
+
             background:
-                linear-gradient(to bottom, #87ceeb 0%, #c7efff 55%, #74c365 55%, #58a84b 100%);
+                linear-gradient(
+                    to bottom,
+                    #87ceeb 0%,
+                    #c7efff 55%,
+                    #74c365 55%,
+                    #58a84b 100%
+                );
+
             height: 100vh;
         }
 
@@ -32,9 +41,12 @@
             display: flex;
             justify-content: center;
             gap: 40px;
+
             font-size: 28px;
             font-weight: bold;
+
             color: #222;
+
             margin-bottom: 10px;
         }
 
@@ -46,31 +58,46 @@
         }
 
         .game-board {
+
             width: 950px;
             max-width: 95vw;
+
             margin: auto;
+
             display: grid;
+
             grid-template-columns: repeat(3, 1fr);
+
             gap: 30px;
         }
 
         .hole {
+
             position: relative;
+
             height: 200px;
+
             background: #4f3528;
+
             border-radius: 50%;
+
             overflow: hidden;
 
             box-shadow:
-                inset 0 12px 20px rgba(0, 0, 0, 0.4),
-                0 10px 14px rgba(0, 0, 0, 0.18);
+                inset 0 12px 20px rgba(0,0,0,0.4),
+                0 10px 14px rgba(0,0,0,0.18);
         }
 
         .mole {
+
             position: absolute;
+
             bottom: -260px;
+
             left: 50%;
+
             transform: translateX(-50%);
+
             transition: bottom 0.22s ease;
         }
 
@@ -79,14 +106,20 @@
         }
 
         .keycap {
+
             width: 130px;
             height: 130px;
+
             background: white;
+
             border-radius: 20px;
+
             border: 5px solid #dcdcdc;
 
             display: flex;
+
             flex-direction: column;
+
             align-items: center;
             justify-content: center;
 
@@ -94,30 +127,42 @@
 
             box-shadow:
                 0 7px 0 #bbbbbb,
-                0 12px 24px rgba(0, 0, 0, 0.22);
+                0 12px 24px rgba(0,0,0,0.22);
         }
 
         .english {
+
             font-size: 44px;
+
             font-weight: bold;
+
             color: #222;
+
             line-height: 1;
         }
 
         .hebrew {
+
             font-size: 24px;
+
             margin-top: 8px;
+
             color: #666;
         }
 
         .mole-face {
+
             position: absolute;
+
             top: -24px;
+
             font-size: 42px;
+
             animation: bounce 0.7s infinite alternate;
         }
 
         @keyframes bounce {
+
             from {
                 transform: translateY(0px);
             }
@@ -127,15 +172,22 @@
             }
         }
 
+        /* ========================= */
+        /* פטיש */
+        /* ========================= */
+
         .hammer {
+
             position: absolute;
 
-            /* ממקם מעל החפרפרת */
             top: -95px;
+
             left: 50%;
 
             transform:
-                translateX(-50%) rotate(-10deg) scale(0.7);
+                translateX(-50%)
+                rotate(-10deg)
+                scale(0.7);
 
             font-size: 120px;
 
@@ -153,10 +205,14 @@
         @keyframes hammerHit {
 
             0% {
+
                 opacity: 0;
 
                 transform:
-                    translateX(-50%) translateY(-40px) rotate(-10deg) scale(0.7);
+                    translateX(-50%)
+                    translateY(-40px)
+                    rotate(-10deg)
+                    scale(0.7);
             }
 
             30% {
@@ -166,16 +222,27 @@
             70% {
 
                 transform:
-                    translateX(-50%) translateY(45px) rotate(0deg) scale(1);
+                    translateX(-50%)
+                    translateY(45px)
+                    rotate(0deg)
+                    scale(1);
             }
 
             100% {
+
                 opacity: 0;
 
                 transform:
-                    translateX(-50%) translateY(45px) rotate(0deg) scale(1);
+                    translateX(-50%)
+                    translateY(45px)
+                    rotate(0deg)
+                    scale(1);
             }
         }
+
+        /* ========================= */
+        /* אפקט פגיעה */
+        /* ========================= */
 
         .hit-effect {
             animation: hitSquash 0.18s ease;
@@ -197,15 +264,156 @@
         }
 
         .footer {
+
             text-align: center;
+
             margin-top: 24px;
+
             font-size: 18px;
+
             color: #222;
         }
+
+        /* ========================= */
+        /* מסך התחלה */
+        /* ========================= */
+
+        .warmup-screen {
+
+            position: fixed;
+
+            inset: 0;
+
+            background: rgba(0,0,0,0.7);
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            z-index: 999;
+        }
+
+        .warmup-box {
+
+            background: white;
+
+            width: 500px;
+            max-width: 90vw;
+
+            border-radius: 24px;
+
+            padding: 40px;
+
+            text-align: center;
+
+            box-shadow:
+                0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .warmup-box h2 {
+
+            margin-top: 0;
+
+            font-size: 40px;
+        }
+
+        .warmup-box p {
+
+            font-size: 22px;
+
+            margin-bottom: 24px;
+        }
+
+        .warmup-keys {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 16px;
+
+            margin-bottom: 20px;
+        }
+
+        .warmup-key {
+
+            width: 90px;
+            height: 90px;
+
+            background: #fff;
+
+            border: 4px solid #ddd;
+
+            border-radius: 18px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 34px;
+
+            font-weight: bold;
+
+            box-shadow:
+                0 6px 0 #bbb,
+                0 12px 20px rgba(0,0,0,0.18);
+
+            transition: 0.2s;
+        }
+
+        .warmup-key small {
+
+            font-size: 20px;
+
+            color: #777;
+
+            margin-top: 4px;
+        }
+
+        .warmup-key.done {
+
+            background: #8be28b;
+
+            transform: scale(0.92);
+
+            opacity: 0.7;
+        }
+
+        .warmup-hint {
+
+            font-size: 18px;
+
+            color: #666;
+        }
+
     </style>
 </head>
 
 <body>
+
+    <div id="warmup-screen" class="warmup-screen">
+
+        <div class="warmup-box">
+
+            <h2>⌨️ בדיקת מקלדת</h2>
+
+            <p>
+                לחץ על המקשים הבאים כדי להתחיל
+            </p>
+
+            <div id="warmup-keys" class="warmup-keys"></div>
+
+            <div class="warmup-hint">
+                ודא שהמקלדת באנגלית 🙂
+            </div>
+
+        </div>
+
+    </div>
 
     <h1>🎯 מקלדת חפרפרות</h1>
 
@@ -227,6 +435,7 @@
     <script>
 
         const keys = [
+
             { en: "A", he: "ש" },
             { en: "S", he: "ד" },
             { en: "D", he: "ג" },
@@ -236,6 +445,7 @@
             { en: "L", he: "ך" },
             { en: "Q", he: "/" },
             { en: "W", he: "'" }
+
         ];
 
         const board = document.getElementById("board");
@@ -243,19 +453,37 @@
         const scoreEl = document.getElementById("score");
         const levelEl = document.getElementById("level");
 
+        const warmupScreen =
+            document.getElementById("warmup-screen");
+
+        const warmupKeysContainer =
+            document.getElementById("warmup-keys");
+
         let score = 0;
         let level = 1;
 
         let activeMole = null;
         let activeTimeout = null;
 
-        // יצירת חורים
+        let gameStarted = false;
+
+        let warmupKeys = [];
+        let warmupIndex = 0;
+
+        /* ========================= */
+        /* יצירת חורים */
+        /* ========================= */
+
         for (let i = 0; i < 9; i++) {
 
-            const hole = document.createElement("div");
+            const hole =
+                document.createElement("div");
+
             hole.className = "hole";
 
-            const mole = document.createElement("div");
+            const mole =
+                document.createElement("div");
+
             mole.className = "mole";
 
             hole.appendChild(mole);
@@ -263,30 +491,75 @@
             board.appendChild(hole);
         }
 
-        const holes = document.querySelectorAll(".hole");
+        const holes =
+            document.querySelectorAll(".hole");
+
+        /* ========================= */
+        /* פונקציות עזר */
+        /* ========================= */
 
         function randomKey() {
-            return keys[Math.floor(Math.random() * keys.length)];
+
+            return keys[
+                Math.floor(Math.random() * keys.length)
+            ];
         }
 
         function randomHole() {
-            return holes[Math.floor(Math.random() * holes.length)];
+
+            return holes[
+                Math.floor(Math.random() * holes.length)
+            ];
         }
 
         function getVisibleTime() {
 
-            // עולה שלב כל 10 נקודות
-            level = 1 + Math.floor(score / 10);
+            level =
+                1 + Math.floor(score / 10);
 
             levelEl.textContent = level;
 
-            // האות נשארת פחות זמן ככל שעולים
-            // אבל בצורה מאוד עדינה
             return Math.max(
                 1800,
                 5000 - (level * 220)
             );
         }
+
+        /* ========================= */
+        /* מסך חימום */
+        /* ========================= */
+
+        function startWarmup() {
+
+            warmupKeys = [];
+
+            warmupIndex = 0;
+
+            warmupKeysContainer.innerHTML = "";
+
+            for (let i = 0; i < 3; i++) {
+
+                const key = randomKey();
+
+                warmupKeys.push(key);
+
+                const el =
+                    document.createElement("div");
+
+                el.className = "warmup-key";
+
+                el.innerHTML = `
+                    ${key.en}
+                    <small>${key.he}</small>
+                `;
+
+                warmupKeysContainer.appendChild(el);
+            }
+        }
+
+        /* ========================= */
+        /* הצגת חפרפרת */
+        /* ========================= */
 
         function showMole() {
 
@@ -296,31 +569,34 @@
 
             const hole = randomHole();
 
-            const mole = hole.querySelector(".mole");
+            const mole =
+                hole.querySelector(".mole");
 
             const key = randomKey();
 
             mole.innerHTML = `
-        <div class="keycap">
+                <div class="keycap">
 
-          <div class="hammer">🔨</div>
+                    <div class="hammer">🔨</div>
 
-          <div class="mole-face">🐹</div>
+                    <div class="mole-face">🐹</div>
 
-          <div class="english">${key.en}</div>
+                    <div class="english">${key.en}</div>
 
-          <div class="hebrew">${key.he}</div>
+                    <div class="hebrew">${key.he}</div>
 
-        </div>
-      `;
+                </div>
+            `;
 
-            mole.dataset.key = key.en.toLowerCase();
+            mole.dataset.key =
+                key.en.toLowerCase();
 
             mole.classList.add("show");
 
             activeMole = mole;
 
-            const visibleTime = getVisibleTime();
+            const visibleTime =
+                getVisibleTime();
 
             activeTimeout = setTimeout(() => {
 
@@ -330,26 +606,77 @@
 
                     activeMole = null;
 
-                    // אות חדשה מיד
                     setTimeout(showMole, 120);
                 }
 
             }, visibleTime);
         }
 
+        /* ========================= */
+        /* מקלדת */
+        /* ========================= */
+
         document.addEventListener("keydown", (e) => {
+
+            const pressedKey =
+                e.key.toLowerCase();
+
+            /* ========================= */
+            /* חימום */
+            /* ========================= */
+
+            if (!gameStarted) {
+
+                const currentKey =
+                    warmupKeys[warmupIndex];
+
+                if (
+                    pressedKey ===
+                    currentKey.en.toLowerCase()
+                ) {
+
+                    const warmupEls =
+                        document.querySelectorAll(".warmup-key");
+
+                    warmupEls[warmupIndex]
+                        .classList.add("done");
+
+                    warmupIndex++;
+
+                    if (
+                        warmupIndex >= warmupKeys.length
+                    ) {
+
+                        setTimeout(() => {
+
+                            warmupScreen.style.display = "none";
+
+                            gameStarted = true;
+
+                            showMole();
+
+                        }, 500);
+                    }
+                }
+
+                return;
+            }
+
+            /* ========================= */
+            /* משחק */
+            /* ========================= */
 
             if (!activeMole) return;
 
-            const pressedKey = e.key.toLowerCase();
-
-            const correctKey = activeMole.dataset.key;
+            const correctKey =
+                activeMole.dataset.key;
 
             if (pressedKey === correctKey) {
 
                 clearTimeout(activeTimeout);
 
-                const hammer = activeMole.querySelector(".hammer");
+                const hammer =
+                    activeMole.querySelector(".hammer");
 
                 hammer.classList.add("hit");
 
@@ -362,22 +689,23 @@
                 setTimeout(() => {
 
                     if (activeMole) {
+
                         activeMole.classList.remove("show");
                     }
 
                     activeMole = null;
 
-                    // חשוב:
-                    // אות חדשה כמעט מיד
-                    // בלי להאט את קצב המשחק
                     setTimeout(showMole, 120);
 
                 }, 180);
             }
         });
 
-        // התחלה
-        showMole();
+        /* ========================= */
+        /* התחלה */
+        /* ========================= */
+
+        startWarmup();
 
     </script>
 

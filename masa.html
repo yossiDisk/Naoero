@@ -1,0 +1,1530 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap');
+  
+    * { box-sizing: border-box; }
+  
+    :root {
+      --cream: #FAF3E0;
+      --cream-dark: #F0E5C7;
+      --navy: #1B3A4B;
+      --olive: #5C8A4A;
+      --med-blue: #2A6F97;
+      --pomegranate: #B83D2E;
+      --earth: #8E6E53;
+      --desert: #D4934A;
+      --slot-empty: rgba(250, 243, 224, 0.92);
+      --slot-stroke: rgba(46, 76, 95, 0.35);
+      --gold: #E8B83F;
+    }
+  
+    html, body { margin: 0; padding: 0; }
+  
+    .game-container {
+      direction: rtl;
+      min-height: 100vh;
+      background: var(--cream);
+      background-image: radial-gradient(circle at 1px 1px, rgba(27,58,75,0.05) 1px, transparent 0);
+      background-size: 24px 24px;
+      font-family: 'Rubik', system-ui, sans-serif;
+      color: var(--navy);
+      padding-bottom: 32px;
+      overflow-x: hidden;
+    }
+  
+    .game-header {
+      background: var(--navy);
+      color: var(--cream);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+  
+    .game-header h1 {
+      margin: 0;
+      font-weight: 900;
+      font-size: 1.35rem;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+  
+    .progress {
+      display: flex;
+      gap: 6px;
+    }
+  
+    .progress-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  
+    .progress-dot.filled {
+      background: var(--gold);
+      box-shadow: 0 0 12px rgba(232, 184, 63, 0.7);
+      transform: scale(1.2);
+    }
+  
+    .icon-button {
+      background: rgba(255,255,255,0.1);
+      color: var(--cream);
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-family: inherit;
+      transition: background 0.2s, transform 0.4s;
+    }
+  
+    .icon-button:hover {
+      background: rgba(255,255,255,0.2);
+      transform: rotate(180deg);
+    }
+  
+    .instructions {
+      text-align: center;
+      padding: 14px 20px 0;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--earth);
+    }
+  
+    .game-main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      gap: 18px;
+    }
+  
+    .map-container {
+      background: white;
+      border-radius: 24px;
+      padding: 16px;
+      box-shadow: 0 8px 32px rgba(27, 58, 75, 0.1);
+      position: relative;
+      animation: slideUp 0.6s ease-out;
+    }
+  
+    .map-container svg {
+      display: block;
+      height: 58vh;
+      min-height: 380px;
+      width: auto;
+      max-width: 100%;
+    }
+  
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  
+    .region-slot {
+      fill: var(--slot-empty);
+      stroke: var(--slot-stroke);
+      stroke-width: 2.5;
+      stroke-dasharray: 6 5;
+      transition: fill 0.4s, stroke 0.4s, filter 0.4s;
+    }
+  
+    .region-slot.filled {
+      stroke-dasharray: none;
+      stroke-width: 1.5;
+      stroke: rgba(0,0,0,0.18);
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1));
+    }
+  
+    .region-slot.hover {
+      fill: rgba(232, 184, 63, 0.28);
+      stroke: var(--gold);
+      stroke-width: 2.5;
+    }
+  
+    .region-label {
+      fill: white;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      text-anchor: middle;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s 0.2s;
+      paint-order: stroke;
+      stroke: rgba(0,0,0,0.25);
+      stroke-width: 0.5px;
+    }
+  
+    .region-label.shown {
+      opacity: 1;
+    }
+  
+    .tray-container {
+      width: 100%;
+      max-width: 600px;
+      animation: slideUp 0.6s 0.15s ease-out backwards;
+    }
+  
+    .tray {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(27,58,75,0.05);
+    }
+  
+    .piece {
+      background: white;
+      border-radius: 14px;
+      padding: 8px 10px;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(27, 58, 75, 0.08);
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.5s;
+      width: 96px;
+    }
+  
+    .piece:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(27, 58, 75, 0.15);
+    }
+  
+    .piece:active { cursor: grabbing; }
+  
+    .piece.placed {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.4) rotate(15deg);
+    }
+  
+    .piece.dragging { opacity: 0.25; }
+  
+    .piece.shake { animation: shake 0.45s ease-in-out; }
+  
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-7px) rotate(-2deg); }
+      50% { transform: translateX(0); }
+      80% { transform: translateX(7px) rotate(2deg); }
+    }
+  
+    .piece svg {
+      width: 60px;
+      height: 60px;
+    }
+  
+    .piece-label {
+      font-weight: 700;
+      font-size: 0.84rem;
+      text-align: center;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+  
+    /* חתיכת עיר: פין במקום צורה גיאוגרפית */
+    .piece.city-piece .city-pin {
+      font-size: 38px;
+      line-height: 1;
+      margin-bottom: 4px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+  
+    .piece.city-piece {
+      padding: 14px 12px 10px;
+    }
+  
+    .dragging-piece .city-pin {
+      font-size: 38px;
+      line-height: 1;
+      margin-bottom: 4px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+  
+    /* תווית עיר על המפה: כהה, מודגשת, כדי להיראות על רקע בהיר */
+    .region-label.city-label {
+      fill: var(--navy);
+      stroke: rgba(255,255,255,0.85);
+      stroke-width: 2.5px;
+      paint-order: stroke;
+      font-size: 9px;
+    }
+  
+    .dragging-piece {
+      position: fixed;
+      pointer-events: none;
+      z-index: 100;
+      background: white;
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+      transform: scale(1.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+  
+    .dragging-piece svg { width: 65px; height: 65px; }
+  
+    .dragging-piece .piece-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+  
+    .win-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(27, 58, 75, 0.85);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      animation: fadeIn 0.4s;
+    }
+  
+    .win-overlay.hidden { display: none; }
+  
+    .win-card {
+      background: var(--cream);
+      border-radius: 28px;
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 24px 72px rgba(0,0,0,0.4);
+      animation: pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  
+    @keyframes pop {
+      0% { transform: scale(0.5) rotate(-5deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
+    }
+  
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  
+    .win-trophy {
+      font-size: 5rem;
+      margin-bottom: 8px;
+      animation: bounce 1s ease infinite;
+      display: inline-block;
+    }
+  
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+  
+    .win-card h2 {
+      margin: 0 0 12px;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--navy);
+    }
+  
+    .win-card p {
+      margin: 0 0 24px;
+      color: var(--earth);
+      font-size: 1.05rem;
+      line-height: 1.4;
+    }
+  
+    .win-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      margin-top: 4px;
+    }
+  
+    .win-button {
+      background: var(--pomegranate);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 14px;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 220px;
+      justify-content: center;
+    }
+  
+    .win-button-next {
+      background: var(--olive);
+    }
+  
+    .win-button-next:hover {
+      box-shadow: 0 8px 20px rgba(92, 138, 74, 0.4);
+    }
+  
+    .win-button-secondary {
+      background: transparent;
+      color: var(--navy);
+      border: 2px solid var(--navy);
+      padding: 12px 30px;
+      font-size: 0.95rem;
+    }
+  
+    .win-button-secondary:hover {
+      background: var(--navy);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  
+    .win-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(184, 61, 46, 0.4);
+    }
+  
+    .win-button:active { transform: translateY(0); }
+  
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 14px;
+      z-index: 199;
+      pointer-events: none;
+      animation: fall 2.5s linear forwards;
+      border-radius: 2px;
+    }
+  
+    @keyframes fall {
+      to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+  
+    @media (min-width: 900px) {
+      .game-main {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 32px;
+        gap: 32px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .map-container svg { height: 72vh; min-height: 500px; }
+      .tray-container { max-width: 240px; position: sticky; top: 80px; }
+      .tray { flex-direction: column; align-items: stretch; }
+      .piece {
+        flex-direction: row;
+        width: auto;
+        gap: 12px;
+        padding: 10px 14px;
+        justify-content: flex-start;
+      }
+      .piece svg { width: 50px; height: 50px; flex-shrink: 0; }
+      .piece-label { font-size: 1rem; }
+    }
+  </style>
+  
+  <div class="game-container">
+    <header class="game-header">
+      <h1>🗺️ <span class="app-title">מסע בארץ ישראל</span></h1>
+      <div class="header-right">
+        <div class="progress" id="progress"></div>
+        <button id="restartBtn" class="icon-button" title="התחל מחדש" aria-label="התחל מחדש">↻</button>
+      </div>
+    </header>
+  
+    <div class="instructions">גררו כל חלק למקום שלו במפה ✨</div>
+  
+    <main class="game-main">
+      <div class="map-container">
+        <svg id="map" viewBox="0 0 240 810" width="240" height="810" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <!-- ים תיכון - גבול מזרחי = קו החוף האמיתי מראש הנקרה לרצועת עזה -->
+          <path d="M 0,0 L 199,0 L 199,10 L 195,65 L 180,62 L 155,58 L 126,55 L 123,86 L 109,114 L 102,135 L 99,190 L 88,213 L 76,260 L 58,323 L 46,355 L 27,387 L 12,420 L 0,446 Z"
+                fill="#BFD7E8" opacity="0.55" />
+          <!-- גלים עדינים -->
+          <g stroke="#7DA8C2" stroke-width="1.2" fill="none" opacity="0.45" stroke-linecap="round">
+            <path d="M 30,80 q 6,-3 12,0 t 12,0" />
+            <path d="M 25,170 q 6,-3 12,0 t 12,0" />
+            <path d="M 20,250 q 6,-3 12,0 t 12,0" />
+            <path d="M 12,330 q 6,-3 12,0 t 12,0" />
+          </g>
+          <!-- תווית ים תיכון -->
+          <text x="22" y="220" transform="rotate(-78 22 220)" font-family="Rubik" font-size="13" font-weight="700" fill="#2A6F97" opacity="0.6" text-anchor="middle" letter-spacing="1">ים תיכון</text>
+        </svg>
+      </div>
+  
+      <div class="tray-container">
+        <div class="tray" id="tray"></div>
+      </div>
+    </main>
+  
+    <div class="win-overlay hidden" id="winOverlay">
+      <div class="win-card">
+        <div class="win-trophy">🏆</div>
+        <h2>כל הכבוד!</h2>
+        <p class="win-text">סיימתם את השלב!</p>
+        <div class="win-buttons">
+          <button class="win-button win-button-next" id="winNextBtn">
+            <span class="win-next-label">שלב הבא</span><span>→</span>
+          </button>
+          <button class="win-button win-button-secondary" id="winRestartBtn">
+            <span>סבב נוסף</span><span>↻</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // מבנה LEVELS: כל שלב מכיל את ה-viewBox, האזורים, האגמים, וכפתור "הבא"
+    const LEVELS = {
+      level1: {
+        title: 'שלב 1: אזורי הארץ',
+        description: 'גררו כל חלק למקום שלו במפה ✨',
+        winText: 'סיימתם להכיר את 5 אזורי הארץ הגדולים. מוכנים לאתגר הבא?',
+        viewBox: '0 0 240 810',
+        nextLevel: 'level2_north',
+        nextLabel: 'תת-אזורי הצפון',
+        waters: [
+          { id: 'kineret', cx: 199, cy: 110, rx: 11, ry: 19, label: 'כנרת', labelX: 199, labelY: 113 },
+          { id: 'deadsea', cx: 184, cy: 415, rx: 14, ry: 58, label: 'ים המלח', labelX: 184, labelY: 418, labelFontSize: 8 },
+        ],
+        regions: [
+          {
+            id: 'north', name: 'צפון', color: '#5C8A4A',
+            path: 'M 199,10 L 215,32 L 232,48 L 238,65 L 240,100 L 240,130 L 220,150 L 188,175 L 140,185 L 111,187 L 99,190 L 102,135 L 109,114 L 123,86 L 126,55 L 155,58 L 180,62 L 195,65 Z',
+            bbox: { x: 94, y: 5, w: 151, h: 190 },
+            labelPos: { x: 165, y: 110 }
+          },
+          {
+            id: 'center', name: 'מרכז', color: '#2A6F97',
+            path: 'M 99,190 L 111,187 L 111,387 L 27,387 L 46,355 L 58,323 L 76,260 L 88,213 Z',
+            bbox: { x: 22, y: 182, w: 94, h: 210 },
+            labelPos: { x: 70, y: 290 }
+          },
+          {
+            id: 'jerusalem', name: 'ירושלים', color: '#B83D2E',
+            path: 'M 111,285 L 175,285 L 175,387 L 111,387 Z',
+            bbox: { x: 106, y: 280, w: 70, h: 110 },
+            labelPos: { x: 143, y: 340 },
+            labelFontSize: 14
+          },
+          {
+            id: 'judea', name: 'יהודה ושומרון', color: '#8E6E53',
+            path: 'M 111,187 L 140,185 L 188,175 L 187,230 L 187,290 L 185,330 L 180,360 L 187,387 L 175,387 L 175,285 L 111,285 Z',
+            bbox: { x: 106, y: 170, w: 87, h: 222 },
+            labelPos: { x: 152, y: 250 },
+            labelLines: ['יהודה', 'ושומרון'],
+            labelFontSize: 12
+          },
+          {
+            id: 'south', name: 'דרום', color: '#D4934A',
+            path: 'M 27,387 L 111,387 L 175,387 L 187,387 L 185,440 L 175,480 L 160,510 L 140,565 L 122,625 L 105,685 L 95,745 L 105,800 L 95,800 L 88,770 L 75,720 L 58,660 L 40,590 L 22,520 L 8,450 L 0,446 L 12,420 Z',
+            bbox: { x: -5, y: 382, w: 197, h: 423 },
+            labelPos: { x: 100, y: 555 }
+          },
+        ]
+      },
+  
+      level2_north: {
+        title: 'שלב 2.א: תת-אזורי הצפון',
+        description: 'גררו כל חלק לתת-אזור שלו בצפון ✨',
+        winText: 'מצוין! הכרתם את תת-אזורי הצפון. ממשיכים למרכז?',
+        viewBox: '75 0 175 210',
+        nextLevel: 'level2_center',
+        nextLabel: 'תת-אזורי המרכז',
+        waters: [
+          { id: 'kineret', cx: 213, cy: 122, rx: 8, ry: 14, label: 'כנרת', labelX: 213, labelY: 124, labelFontSize: 7 },
+        ],
+        regions: [
+          {
+            id: 'carmel', name: 'כרמל וחוף', color: '#7BA86A',
+            path: 'M 126,55 L 140,56 L 140,185 L 99,190 L 102,135 L 109,114 L 123,86 Z',
+            bbox: { x: 94, y: 50, w: 46, h: 145 },
+            labelPos: { x: 116, y: 130 },
+            labelLines: ['כרמל', 'וחוף'],
+            labelFontSize: 9
+          },
+          {
+            id: 'galil_upper', name: 'גליל עליון', color: '#5C8A4A',
+            path: 'M 140,56 L 155,58 L 180,62 L 195,65 L 199,10 L 200,12 L 200,110 L 140,110 Z',
+            bbox: { x: 135, y: 5, w: 65, h: 105 },
+            labelPos: { x: 168, y: 75 },
+            labelLines: ['גליל', 'עליון'],
+            labelFontSize: 10
+          },
+          {
+            id: 'galil_lower', name: 'גליל תחתון', color: '#4D7741',
+            path: 'M 140,110 L 200,110 L 200,150 L 140,150 Z',
+            bbox: { x: 135, y: 105, w: 65, h: 45 },
+            labelPos: { x: 170, y: 132 },
+            labelLines: ['גליל', 'תחתון'],
+            labelFontSize: 10
+          },
+          {
+            id: 'golan', name: 'גולן וחרמון', color: '#8A6F4A',
+            path: 'M 200,12 L 215,32 L 232,48 L 238,65 L 240,100 L 240,130 L 220,150 L 200,150 Z',
+            bbox: { x: 195, y: 7, w: 45, h: 143 },
+            labelPos: { x: 220, y: 90 },
+            labelLines: ['גולן', 'וחרמון'],
+            labelFontSize: 9
+          },
+          {
+            id: 'emek', name: 'עמקים', color: '#C9B870',
+            path: 'M 140,150 L 200,150 L 200,165 L 188,175 L 140,185 Z',
+            bbox: { x: 135, y: 145, w: 65, h: 40 },
+            labelPos: { x: 168, y: 170 },
+            labelFontSize: 11
+          },
+        ]
+      },
+  
+      level2_center: {
+        title: 'שלב 2.ב: תת-אזורי המרכז',
+        description: 'גררו כל חלק לתת-אזור שלו במרכז ✨',
+        winText: 'יפה! הכרתם את תת-אזורי המרכז. ממשיכים ליהודה ושומרון?',
+        viewBox: '10 175 110 220',
+        nextLevel: 'level2_judea',
+        nextLabel: 'תת-אזורי יהודה ושומרון',
+        waters: [],
+        regions: [
+          {
+            id: 'sharon', name: 'שרון', color: '#5294B0',
+            // שרון - חוף הצפון (חדרה - נתניה)
+            path: 'M 99,190 L 111,187 L 111,275 L 72,275 L 76,260 L 88,213 Z',
+            bbox: { x: 67, y: 182, w: 44, h: 93 },
+            labelPos: { x: 95, y: 235 },
+            labelFontSize: 10
+          },
+          {
+            id: 'gush_dan', name: 'גוש דן', color: '#2A6F97',
+            // גוש דן - אזור תל אביב
+            path: 'M 72,275 L 111,275 L 111,340 L 52,340 L 58,323 Z',
+            bbox: { x: 47, y: 270, w: 64, h: 70 },
+            labelPos: { x: 85, y: 310 },
+            labelLines: ['גוש דן'],
+            labelFontSize: 10
+          },
+          {
+            id: 'mishor_south', name: 'דרום מישור החוף', color: '#1F5573',
+            // אשדוד - אשקלון - גזה - חבל הבשור
+            path: 'M 52,340 L 111,340 L 111,387 L 27,387 L 46,355 Z',
+            bbox: { x: 22, y: 335, w: 89, h: 52 },
+            labelPos: { x: 70, y: 365 },
+            labelLines: ['דרום מישור', 'החוף'],
+            labelFontSize: 8
+          },
+        ]
+      },
+  
+      level2_judea: {
+        title: 'שלב 2.ג: תת-אזורי יהודה ושומרון',
+        description: 'גררו כל חלק לתת-אזור שלו ביהודה ושומרון ✨',
+        winText: 'מעולה! הכרתם את תת-אזורי יהודה ושומרון. נמשיך לדרום?',
+        viewBox: '95 165 105 235',
+        nextLevel: 'level2_south',
+        nextLabel: 'תת-אזורי הדרום',
+        waters: [
+          // קצה צפוני של ים המלח גלוי בקצה התחתון של יו"ש
+          { id: 'deadsea_top', cx: 184, cy: 380, rx: 8, ry: 14, label: 'ים', labelX: 184, labelY: 383, labelFontSize: 6 },
+        ],
+        regions: [
+          {
+            id: 'shomron', name: 'שומרון', color: '#A88670',
+            // שומרון - הצפון של יו"ש (אזור שכם)
+            path: 'M 111,187 L 140,185 L 160,181 L 160,235 L 111,235 Z',
+            bbox: { x: 106, y: 176, w: 54, h: 59 },
+            labelPos: { x: 135, y: 213 },
+            labelFontSize: 11
+          },
+          {
+            id: 'harey_yehuda', name: 'הרי יהודה', color: '#8E6E53',
+            // הרי יהודה - הדרום של יו"ש (חברון, גוש עציון)
+            path: 'M 111,235 L 160,235 L 160,285 L 111,285 Z',
+            bbox: { x: 106, y: 230, w: 54, h: 55 },
+            labelPos: { x: 135, y: 263 },
+            labelLines: ['הרי', 'יהודה'],
+            labelFontSize: 10
+          },
+          {
+            id: 'biqa', name: 'בקעת הירדן', color: '#6E5638',
+            // בקעת הירדן ומדבר יהודה - הרצועה המזרחית
+            path: 'M 160,181 L 188,175 L 187,230 L 187,290 L 185,330 L 180,360 L 187,387 L 175,387 L 175,285 L 160,285 Z',
+            bbox: { x: 155, y: 170, w: 33, h: 217 },
+            labelPos: { x: 175, y: 280 },
+            labelLines: ['בקעת', 'הירדן'],
+            labelFontSize: 8
+          },
+        ]
+      },
+  
+      level2_south: {
+        title: 'שלב 2.ד: תת-אזורי הדרום',
+        description: 'גררו כל חלק לתת-אזור שלו בדרום ✨',
+        winText: 'מצוין! עכשיו ננסה לזהות ערים על המפה?',
+        viewBox: '-5 380 200 425',
+        nextLevel: 'level3_north',
+        nextLabel: 'ערי הצפון',
+        waters: [
+          { id: 'deadsea', cx: 184, cy: 415, rx: 14, ry: 35, label: 'ים המלח', labelX: 184, labelY: 418, labelFontSize: 7 },
+        ],
+        regions: [
+          {
+            id: 'negev_north', name: 'צפון הנגב', color: '#DEA869',
+            // צפון הנגב + רצועת עזה - באר שבע, חבל הבשור, נתיבות, אופקים, שדרות
+            path: 'M 27,387 L 111,387 L 175,387 L 187,387 L 185,440 L 175,480 L 160,510 L 20,510 L 8,450 L 0,446 L 12,420 Z',
+            bbox: { x: -5, y: 382, w: 197, h: 133 },
+            labelPos: { x: 95, y: 450 },
+            labelLines: ['צפון', 'הנגב'],
+            labelFontSize: 11
+          },
+          {
+            id: 'negev_center', name: 'מרכז הנגב', color: '#D4934A',
+            // מרכז הנגב - שדה בוקר, מצפה רמון, מכתש רמון, ירוחם, דימונה
+            path: 'M 20,510 L 160,510 L 140,565 L 122,625 L 112,660 L 58,660 L 40,590 L 22,520 Z',
+            bbox: { x: 15, y: 505, w: 145, h: 160 },
+            labelPos: { x: 88, y: 580 },
+            labelLines: ['מרכז', 'הנגב'],
+            labelFontSize: 11
+          },
+          {
+            id: 'arava_eilat', name: 'ערבה ואילת', color: '#B87838',
+            // הערבה הדרומית ואילת
+            path: 'M 58,660 L 112,660 L 105,685 L 95,745 L 105,800 L 95,800 L 88,770 L 75,720 Z',
+            bbox: { x: 53, y: 655, w: 59, h: 145 },
+            labelPos: { x: 88, y: 720 },
+            labelLines: ['ערבה', 'ואילת'],
+            labelFontSize: 9
+          },
+        ]
+      },
+  
+      level3_north: {
+        title: 'שלב 3.א: ערי הצפון',
+        description: 'גררו כל פין למקום העיר הנכון על המפה 📍',
+        winText: 'נהדר! הכרתם את 5 הערים העיקריות של הצפון. ממשיכים למרכז?',
+        viewBox: '75 0 175 210',
+        nextLevel: 'level3_center',
+        nextLabel: 'ערי המרכז',
+        waters: [
+          { id: 'kineret', cx: 213, cy: 122, rx: 8, ry: 14, label: 'כנרת', labelX: 213, labelY: 124, labelFontSize: 7 },
+        ],
+        decorations: [
+          {
+            // קווי המתאר של הצפון - רקע גיאוגרפי לתת קונטקסט
+            path: 'M 199,10 L 215,32 L 232,48 L 238,65 L 240,100 L 240,130 L 220,150 L 188,175 L 140,185 L 111,187 L 99,190 L 102,135 L 109,114 L 123,86 L 126,55 L 155,58 L 180,62 L 195,65 Z',
+            fill: 'rgba(245, 234, 211, 0.55)',
+            stroke: 'rgba(46, 79, 99, 0.4)',
+            strokeWidth: 1.5,
+            strokeDasharray: 'none',
+          },
+        ],
+        regions: [
+          {
+            id: 'haifa', name: 'חיפה', color: '#C44545', pieceType: 'city',
+            // חיפה - עיר נמל בכרמל
+            path: 'M 114,114 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0 Z',
+            bbox: { x: 108, y: 108, w: 12, h: 12 },
+            labelPos: { x: 114, y: 102 },
+            labelFontSize: 9,
+          },
+          {
+            id: 'akko', name: 'עכו', color: '#C44545', pieceType: 'city',
+            // עכו - עיר עתיקה במפרץ חיפה
+            path: 'M 128,86 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0 Z',
+            bbox: { x: 122, y: 80, w: 12, h: 12 },
+            labelPos: { x: 128, y: 74 },
+            labelFontSize: 9,
+          },
+          {
+            id: 'nazareth', name: 'נצרת', color: '#C44545', pieceType: 'city',
+            // נצרת - בלב הגליל התחתון
+            path: 'M 163,133 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0 Z',
+            bbox: { x: 157, y: 127, w: 12, h: 12 },
+            labelPos: { x: 163, y: 121 },
+            labelFontSize: 9,
+          },
+          {
+            id: 'safed', name: 'צפת', color: '#C44545', pieceType: 'city',
+            // צפת - הר בגליל העליון
+            path: 'M 195,76 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0 Z',
+            bbox: { x: 189, y: 70, w: 12, h: 12 },
+            labelPos: { x: 195, y: 64 },
+            labelFontSize: 9,
+          },
+          {
+            id: 'tiberias', name: 'טבריה', color: '#C44545', pieceType: 'city',
+            // טבריה - על שפת הכנרת
+            path: 'M 199,114 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0 Z',
+            bbox: { x: 193, y: 108, w: 12, h: 12 },
+            labelPos: { x: 199, y: 102 },
+            labelFontSize: 9,
+          },
+        ]
+      },
+  
+      level3_center: {
+        title: 'שלב 3.ב: ערי המרכז',
+        description: 'גררו כל פין למקום העיר הנכון על המפה 📍',
+        winText: 'מצוין! זיהיתם את ערי המרכז. ממשיכים לדרום?',
+        viewBox: '10 175 110 220',
+        nextLevel: 'level3_south',
+        nextLabel: 'ערי הדרום',
+        waters: [],
+        decorations: [
+          {
+            // קווי המתאר של המרכז כרקע
+            path: 'M 99,190 L 111,187 L 111,387 L 27,387 L 46,355 L 58,323 L 76,260 L 88,213 Z',
+            fill: 'rgba(245, 234, 211, 0.55)',
+            stroke: 'rgba(46, 79, 99, 0.4)',
+            strokeWidth: 1.5,
+            strokeDasharray: 'none',
+          },
+        ],
+        regions: [
+          {
+            id: 'hadera', name: 'חדרה', color: '#2A6F97', pieceType: 'city',
+            // חדרה - בצפון מישור החוף
+            path: 'M 103,193 m -5,0 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0 Z',
+            bbox: { x: 98, y: 188, w: 10, h: 10 },
+            labelPos: { x: 103, y: 184 },
+            labelFontSize: 8,
+          },
+          {
+            id: 'netanya', name: 'נתניה', color: '#2A6F97', pieceType: 'city',
+            // נתניה - בשרון על חוף הים
+            path: 'M 93,213 m -5,0 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0 Z',
+            bbox: { x: 88, y: 208, w: 10, h: 10 },
+            labelPos: { x: 80, y: 215 },
+            labelFontSize: 8,
+          },
+          {
+            id: 'tel_aviv', name: 'תל אביב', color: '#2A6F97', pieceType: 'city',
+            // תל אביב-יפו
+            path: 'M 81,264 m -5,0 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0 Z',
+            bbox: { x: 76, y: 259, w: 10, h: 10 },
+            labelPos: { x: 70, y: 266 },
+            labelLines: ['תל', 'אביב'],
+            labelFontSize: 8,
+          },
+          {
+            id: 'ashdod', name: 'אשדוד', color: '#2A6F97', pieceType: 'city',
+            // אשדוד - בדרום מישור החוף
+            path: 'M 60,323 m -5,0 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0 Z',
+            bbox: { x: 55, y: 318, w: 10, h: 10 },
+            labelPos: { x: 50, y: 325 },
+            labelFontSize: 8,
+          },
+          {
+            id: 'ashkelon', name: 'אשקלון', color: '#2A6F97', pieceType: 'city',
+            // אשקלון - בדרום מישור החוף, על חוף הים
+            path: 'M 47,350 m -5,0 a 5,5 0 1,0 10,0 a 5,5 0 1,0 -10,0 Z',
+            bbox: { x: 42, y: 345, w: 10, h: 10 },
+            labelPos: { x: 38, y: 354 },
+            labelFontSize: 8,
+          },
+        ]
+      },
+  
+      level3_south: {
+        title: 'שלב 3.ג: ערי הדרום',
+        description: 'גררו כל פין למקום העיר הנכון על המפה 📍',
+        winText: 'כל הכבוד! סיימתם את כל המשחק - הכרתם את אזורי הארץ והערים שלה! 🏆',
+        viewBox: '-5 380 200 425',
+        nextLevel: null,
+        nextLabel: null,
+        waters: [
+          { id: 'deadsea', cx: 184, cy: 415, rx: 14, ry: 35, label: 'ים המלח', labelX: 184, labelY: 418, labelFontSize: 7 },
+        ],
+        decorations: [
+          {
+            // קווי המתאר של הדרום כרקע
+            path: 'M 27,387 L 111,387 L 175,387 L 187,387 L 185,440 L 175,480 L 160,510 L 140,565 L 122,625 L 105,685 L 95,745 L 105,800 L 95,800 L 88,770 L 75,720 L 58,660 L 40,590 L 22,520 L 8,450 L 0,446 L 12,420 Z',
+            fill: 'rgba(245, 234, 211, 0.55)',
+            stroke: 'rgba(46, 79, 99, 0.4)',
+            strokeWidth: 1.5,
+            strokeDasharray: 'none',
+          },
+        ],
+        regions: [
+          {
+            id: 'beersheba', name: 'באר שבע', color: '#D4934A', pieceType: 'city',
+            // באר שבע - בירת הנגב
+            path: 'M 82,440 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0 Z',
+            bbox: { x: 76, y: 434, w: 12, h: 12 },
+            labelPos: { x: 75, y: 430 },
+            labelLines: ['באר', 'שבע'],
+            labelFontSize: 9,
+          },
+          {
+            id: 'arad', name: 'ערד', color: '#D4934A', pieceType: 'city',
+            // ערד - מזרחית לבאר שבע
+            path: 'M 149,438 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0 Z',
+            bbox: { x: 143, y: 432, w: 12, h: 12 },
+            labelPos: { x: 149, y: 426 },
+            labelFontSize: 9,
+          },
+          {
+            id: 'dimona', name: 'דימונה', color: '#D4934A', pieceType: 'city',
+            // דימונה - דרום-מזרחית לבאר שבע
+            path: 'M 120,478 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0 Z',
+            bbox: { x: 114, y: 472, w: 12, h: 12 },
+            labelPos: { x: 120, y: 466 },
+            labelFontSize: 9,
+          },
+          {
+            id: 'mitzpe_ramon', name: 'מצפה רמון', color: '#D4934A', pieceType: 'city',
+            // מצפה רמון - על שפת מכתש רמון
+            path: 'M 84,575 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0 Z',
+            bbox: { x: 78, y: 569, w: 12, h: 12 },
+            labelPos: { x: 84, y: 563 },
+            labelLines: ['מצפה', 'רמון'],
+            labelFontSize: 9,
+          },
+          {
+            id: 'eilat', name: 'אילת', color: '#D4934A', pieceType: 'city',
+            // אילת - בקצה הדרומי, על ים סוף
+            path: 'M 100,790 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0 Z',
+            bbox: { x: 94, y: 784, w: 12, h: 12 },
+            labelPos: { x: 100, y: 778 },
+            labelFontSize: 9,
+          },
+        ]
+      },
+    };
+  
+    let currentLevelKey = 'level1';
+    let REGIONS = LEVELS[currentLevelKey].regions;
+  
+    let placed = {};
+    let dragId = null;
+    let dragPiece = null;
+    let dragOffset = { x: 0, y: 0 };
+    let trayOrder = shuffle(REGIONS.map(r => r.id));
+  
+    // ניקוי כפוי - מנקה כל מצב גרירה תקוע. נקרא מ-onPointerDown (אם תקוע) ומ-window blur/visibility
+    function forceCleanup() {
+      const ghost = document.getElementById('dragGhost');
+      if (ghost) ghost.remove();
+  
+      document.querySelectorAll('.piece.dragging').forEach(p => p.classList.remove('dragging'));
+      document.querySelectorAll('.region-slot.hover').forEach(p => p.classList.remove('hover'));
+  
+      // הסרת listeners ברמת document (אם קיימים)
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+      document.removeEventListener('pointercancel', onPointerUp);
+  
+      if (dragPiece) {
+        try { dragPiece.releasePointerCapture && dragPiece.releasePointerCapture(0); } catch(e) {}
+      }
+      dragId = null;
+      dragPiece = null;
+    }
+  
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+  
+    const STORAGE_KEY = 'israelGame_state_v2';
+  
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          currentLevelKey,
+          placed,
+          savedAt: Date.now(),
+        }));
+      } catch (e) { /* ignore - quota or unavailable */ }
+    }
+  
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (data && data.currentLevelKey && LEVELS[data.currentLevelKey]) {
+          return data;
+        }
+      } catch (e) {}
+      return null;
+    }
+  
+    function init() {
+      // ניסיון שחזור התקדמות שמורה
+      const saved = loadState();
+      if (saved) currentLevelKey = saved.currentLevelKey;
+  
+      loadLevel(currentLevelKey, saved ? saved.placed : null);
+  
+      document.getElementById('restartBtn').addEventListener('click', restart);
+      document.getElementById('winRestartBtn').addEventListener('click', restart);
+      document.getElementById('winNextBtn').addEventListener('click', goToNextLevel);
+  
+      // רשת ביטחון: בעת איבוד פוקוס/מעבר טאב, מסיימים גרירה תקועה
+      window.addEventListener('blur', () => { if (dragId) forceCleanup(); });
+      window.addEventListener('pagehide', () => { if (dragId) forceCleanup(); });
+      document.addEventListener('visibilitychange', () => { if (document.hidden && dragId) forceCleanup(); });
+    }
+  
+    function loadLevel(levelKey, restoredPlaced) {
+      if (!LEVELS[levelKey]) return;
+      currentLevelKey = levelKey;
+      const level = LEVELS[levelKey];
+      REGIONS = level.regions;
+  
+      // עדכון viewBox + width/height של ה-SVG
+      const svg = document.getElementById('map');
+      svg.setAttribute('viewBox', level.viewBox);
+      const vbParts = level.viewBox.split(/\s+/).map(Number);
+      if (vbParts.length === 4) {
+        svg.setAttribute('width', vbParts[2]);
+        svg.setAttribute('height', vbParts[3]);
+      }
+  
+      // כותרת + הנחיה
+      const instruction = document.querySelector('.instructions');
+      if (instruction) instruction.textContent = level.description;
+      const title = document.querySelector('.app-title');
+      if (title) title.textContent = level.title;
+  
+      // שחזור או איפוס מצב
+      placed = (restoredPlaced && typeof restoredPlaced === 'object') ? { ...restoredPlaced } : {};
+      // המגש מציג רק חלקים שעוד לא הונחו
+      trayOrder = shuffle(REGIONS.map(r => r.id).filter(id => !placed[id]));
+  
+      document.getElementById('winOverlay').classList.add('hidden');
+  
+      buildMap();
+      buildTray();
+  
+      // שחזור ויזואלי של חלקים שכבר הונחו
+      Object.keys(placed).forEach(id => {
+        if (!placed[id]) return;
+        const region = REGIONS.find(r => r.id === id);
+        if (!region) return;
+        const path = document.getElementById(`region-${id}`);
+        if (path) {
+          path.style.fill = region.color;
+          path.classList.add('filled');
+        }
+        const label = document.getElementById(`label-${id}`);
+        if (label) label.classList.add('shown');
+      });
+  
+      updateProgress();
+      saveState();
+  
+      // אם השלב כבר הושלם - מציגים את מסך הניצחון (ללא אפקטים, כי המשתמש ראה אותם כבר)
+      if (REGIONS.length > 0 && Object.keys(placed).length === REGIONS.length) {
+        setTimeout(() => showWin(false), 250);
+      }
+    }
+  
+    function goToNextLevel() {
+      const nextKey = LEVELS[currentLevelKey].nextLevel;
+      if (nextKey && LEVELS[nextKey]) {
+        loadLevel(nextKey);
+      }
+    }
+  
+    function buildMap() {
+      const svg = document.getElementById('map');
+      // הסרה רק של אלמנטי האזורים, האגמים, התוויות והעיטורים (משאיר את הים הראשי)
+      svg.querySelectorAll('[id^="region-"], [id^="label-"], [id^="water-"], [id^="deco-"]').forEach(el => el.remove());
+  
+      // עיטורים - גבולות אזורים גדולים יותר שמופיעים כרקע (לא אינטראקטיביים)
+      // למשל: ב-L3 ערים נראים גבולות הצפון כדי לתת קונטקסט גיאוגרפי
+      const decorations = LEVELS[currentLevelKey].decorations || [];
+      decorations.forEach((d, i) => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('id', `deco-${i}`);
+        path.setAttribute('d', d.path);
+        path.setAttribute('fill', d.fill || 'rgba(245, 234, 211, 0.6)');
+        path.setAttribute('stroke', d.stroke || 'rgba(46, 79, 99, 0.35)');
+        path.setAttribute('stroke-width', d.strokeWidth || 1.5);
+        path.setAttribute('stroke-dasharray', d.strokeDasharray || 'none');
+        path.setAttribute('pointer-events', 'none');
+        svg.appendChild(path);
+      });
+  
+      REGIONS.forEach(r => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('id', `region-${r.id}`);
+        path.setAttribute('d', r.path);
+        path.classList.add('region-slot');
+        svg.appendChild(path);
+      });
+  
+      // אגמים פנימיים מנתוני השלב הנוכחי (כנרת/ים המלח לפי ההקשר)
+      const waters = LEVELS[currentLevelKey].waters || [];
+      waters.forEach(w => {
+        const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        ellipse.setAttribute('id', `water-${w.id}`);
+        ellipse.setAttribute('cx', w.cx);
+        ellipse.setAttribute('cy', w.cy);
+        ellipse.setAttribute('rx', w.rx);
+        ellipse.setAttribute('ry', w.ry);
+        ellipse.setAttribute('fill', '#9CC7DC');
+        ellipse.setAttribute('stroke', '#5C8AA8');
+        ellipse.setAttribute('stroke-width', '1');
+        ellipse.setAttribute('opacity', '0.85');
+        ellipse.setAttribute('pointer-events', 'none');
+        svg.appendChild(ellipse);
+  
+        const wlabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        wlabel.setAttribute('id', `water-label-${w.id}`);
+        wlabel.setAttribute('x', w.labelX);
+        wlabel.setAttribute('y', w.labelY);
+        wlabel.setAttribute('font-family', 'Rubik');
+        wlabel.setAttribute('font-size', w.labelFontSize || 9);
+        wlabel.setAttribute('font-weight', '600');
+        wlabel.setAttribute('fill', '#1F4E6B');
+        wlabel.setAttribute('text-anchor', 'middle');
+        wlabel.setAttribute('pointer-events', 'none');
+        wlabel.textContent = w.label;
+        svg.appendChild(wlabel);
+      });
+  
+      REGIONS.forEach(r => {
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('id', `label-${r.id}`);
+        label.setAttribute('x', r.labelPos.x);
+        label.setAttribute('y', r.labelPos.y);
+        label.classList.add('region-label');
+        // לערים: סגנון תווית מיוחד (כהה על רקע בהיר)
+        if (r.pieceType === 'city') label.classList.add('city-label');
+        if (r.labelFontSize) label.setAttribute('font-size', r.labelFontSize);
+  
+        const lines = r.labelLines || [r.name];
+        lines.forEach((line, i) => {
+          const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+          tspan.setAttribute('x', r.labelPos.x);
+          if (i > 0) tspan.setAttribute('dy', r.labelFontSize ? r.labelFontSize + 2 : 18);
+          tspan.textContent = line;
+          label.appendChild(tspan);
+        });
+  
+        svg.appendChild(label);
+      });
+    }
+  
+    function buildTray() {
+      const tray = document.getElementById('tray');
+      tray.innerHTML = '';
+  
+      trayOrder.forEach(id => {
+        const r = REGIONS.find(reg => reg.id === id);
+        const piece = document.createElement('div');
+        piece.className = 'piece';
+        piece.dataset.regionId = id;
+  
+        if (r.pieceType === 'city') {
+          // חתיכת עיר: פין + שם
+          piece.classList.add('city-piece');
+          piece.innerHTML = `
+            <div class="city-pin">📍</div>
+            <div class="piece-label">${r.name}</div>
+          `;
+        } else {
+          // חתיכה רגילה: צורה גיאוגרפית + שם
+          const { x, y, w, h } = r.bbox;
+          piece.innerHTML = `
+            <svg viewBox="${x} ${y} ${w} ${h}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+              <path d="${r.path}" fill="${r.color}" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" />
+            </svg>
+            <div class="piece-label">${r.name}</div>
+          `;
+        }
+  
+        if (placed[id]) piece.classList.add('placed');
+  
+        piece.addEventListener('pointerdown', (e) => onPointerDown(e, id));
+  
+        tray.appendChild(piece);
+      });
+    }
+  
+    function onPointerDown(e, id) {
+      if (placed[id]) return;
+      // אם יש מצב תקוע מקודם (gameId נעוץ אבל אין drag פעיל) - מנקה
+      if (dragId) forceCleanup();
+      e.preventDefault();
+  
+      const piece = e.currentTarget;
+      const rect = piece.getBoundingClientRect();
+  
+      dragId = id;
+      dragPiece = piece;
+      dragOffset = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+  
+      piece.classList.add('dragging');
+      try { piece.setPointerCapture(e.pointerId); } catch(err) {}
+  
+      const region = REGIONS.find(r => r.id === id);
+      const ghost = document.createElement('div');
+      ghost.id = 'dragGhost';
+      ghost.className = 'dragging-piece';
+  
+      if (region.pieceType === 'city') {
+        // ghost של עיר: פין + שם
+        ghost.classList.add('city-piece');
+        ghost.innerHTML = `
+          <div class="city-pin">📍</div>
+          <div class="piece-label">${region.name}</div>
+        `;
+      } else {
+        // ghost של אזור: גודל מותאם למשבצת + צורה
+        const slotEl = document.getElementById(`region-${id}`);
+        let ghostW = 65, ghostH = 65;
+        if (slotEl) {
+          const sr = slotEl.getBoundingClientRect();
+          ghostW = Math.max(36, Math.min(140, sr.width));
+          ghostH = Math.max(36, Math.min(140, sr.height));
+        }
+  
+        const { x, y, w, h } = region.bbox;
+        ghost.innerHTML = `
+          <svg viewBox="${x} ${y} ${w} ${h}" style="width:${ghostW}px;height:${ghostH}px" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+            <path d="${region.path}" fill="${region.color}" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" />
+          </svg>
+          <div class="piece-label">${region.name}</div>
+        `;
+      }
+  
+      document.body.appendChild(ghost);
+  
+      // אחרי שה-ghost בDOM, מתקנים את dragOffset כך שהאצבע תהיה במרכז המשבצת
+      requestAnimationFrame(() => {
+        // לערים: מרכז ה-pin emoji. לאזורים: מרכז ה-SVG.
+        const target = ghost.querySelector('svg') || ghost.querySelector('.city-pin');
+        if (target) {
+          const gr = target.getBoundingClientRect();
+          const ghostRect = ghost.getBoundingClientRect();
+          dragOffset = {
+            x: (gr.left - ghostRect.left) + gr.width / 2,
+            y: (gr.top - ghostRect.top) + gr.height / 2,
+          };
+          positionGhost(e.clientX, e.clientY);
+        }
+      });
+  
+      positionGhost(e.clientX, e.clientY);
+  
+      // listeners ברמת document - יבטיחו שגם אם ה-pointer יוצא מהאלמנט, ה-up עדיין נתפס
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp);
+      document.addEventListener('pointercancel', onPointerUp);
+    }
+  
+    function positionGhost(clientX, clientY) {
+      const ghost = document.getElementById('dragGhost');
+      if (!ghost) return;
+      ghost.style.left = `${clientX - dragOffset.x}px`;
+      ghost.style.top = `${clientY - dragOffset.y}px`;
+    }
+  
+    function onPointerMove(e) {
+      if (!dragId) return;
+      positionGhost(e.clientX, e.clientY);
+  
+      // נשתמש במרכז ה-SVG/הפין של החתיכה הנגררת לזיהוי - ולא במיקום העכבר
+      let checkX = e.clientX;
+      let checkY = e.clientY;
+      const ghost = document.getElementById('dragGhost');
+      if (ghost) {
+        const target = ghost.querySelector('svg') || ghost.querySelector('.city-pin');
+        if (target) {
+          const r = target.getBoundingClientRect();
+          checkX = r.left + r.width / 2;
+          checkY = r.top + r.height / 2;
+        }
+      }
+  
+      const svg = document.getElementById('map');
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return;
+  
+      try {
+        const pt = svg.createSVGPoint();
+        pt.x = checkX;
+        pt.y = checkY;
+        const svgPt = pt.matrixTransform(ctm.inverse());
+  
+        REGIONS.forEach(r => {
+          const path = document.getElementById(`region-${r.id}`);
+          if (!path) return;
+          if (placed[r.id]) { path.classList.remove('hover'); return; }
+          if (isOverRegion(svgPt, path) && r.id === dragId) {
+            path.classList.add('hover');
+          } else {
+            path.classList.remove('hover');
+          }
+        });
+      } catch (err) {}
+    }
+  
+    // בודק האם נקודה נמצאת בתוך אזור. אזורים קטנים (כמו ירושלים) מקבלים טולרנס נדיב,
+    // אזורים גדולים נשארים מדויקים כי הם קלים לפגיעה ממילא.
+    function isOverRegion(svgPt, path) {
+      if (path.isPointInFill(svgPt)) return true;
+      try {
+        const bbox = path.getBBox();
+        if (bbox.width >= 130) return false;
+        // לא מקבל drop שנפל בתוך אזור אחר
+        for (const r of REGIONS) {
+          const other = document.getElementById(`region-${r.id}`);
+          if (other && other !== path && other.isPointInFill(svgPt)) return false;
+        }
+        // עיגולים זעירים (ערים): מרחק רדיאלי ממרכז + הקרוב ביותר מנצח
+        if (bbox.width < 25) {
+          const cx = bbox.x + bbox.width / 2;
+          const cy = bbox.y + bbox.height / 2;
+          const dist = Math.hypot(svgPt.x - cx, svgPt.y - cy);
+          if (dist > 14) return false;
+          // מונע מצב שבו 2 ערים סמוכות מקבלות את אותה נקודה - הצריך לטפטף יותר קרוב לנכונה
+          for (const r of REGIONS) {
+            const other = document.getElementById(`region-${r.id}`);
+            if (!other || other === path) continue;
+            try {
+              const ob = other.getBBox();
+              if (ob.width >= 25) continue;
+              const ocx = ob.x + ob.width / 2;
+              const ocy = ob.y + ob.height / 2;
+              const odist = Math.hypot(svgPt.x - ocx, svgPt.y - ocy);
+              if (odist <= dist) return false;
+            } catch (e) {}
+          }
+          return true;
+        }
+        // אזורים קטנים-בינוניים: סובלנות bbox
+        let tolerance = 12;
+        if (bbox.width < 80) tolerance = 22;
+        if (bbox.width < 50) tolerance = 32;
+        return svgPt.x >= bbox.x - tolerance && svgPt.x <= bbox.x + bbox.width + tolerance &&
+               svgPt.y >= bbox.y - tolerance && svgPt.y <= bbox.y + bbox.height + tolerance;
+      } catch (e) {
+        return false;
+      }
+    }
+  
+    function onPointerUp(e) {
+      if (!dragId) return;
+  
+      // הסרת listeners ברמת document
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+      document.removeEventListener('pointercancel', onPointerUp);
+  
+      const piece = dragPiece;
+      if (piece) {
+        try { piece.releasePointerCapture(e.pointerId); } catch(err) {}
+      }
+  
+      // לוקחים את מרכז ה-SVG/הפין של החתיכה הנגררת לפני שמורידים אותה
+      const ghost = document.getElementById('dragGhost');
+      let checkX = e.clientX;
+      let checkY = e.clientY;
+      if (ghost) {
+        const target = ghost.querySelector('svg') || ghost.querySelector('.city-pin');
+        if (target) {
+          const r = target.getBoundingClientRect();
+          checkX = r.left + r.width / 2;
+          checkY = r.top + r.height / 2;
+        }
+        ghost.remove();
+      }
+  
+      const svg = document.getElementById('map');
+      const svgRect = svg.getBoundingClientRect();
+      const inMap =
+        checkX >= svgRect.left && checkX <= svgRect.right &&
+        checkY >= svgRect.top  && checkY <= svgRect.bottom;
+  
+      REGIONS.forEach(r => {
+        const path = document.getElementById(`region-${r.id}`);
+        if (path) path.classList.remove('hover');
+      });
+  
+      if (!inMap) {
+        if (piece) piece.classList.remove('dragging');
+        dragId = null;
+        dragPiece = null;
+        return;
+      }
+  
+      let correct = false;
+      try {
+        const ctm = svg.getScreenCTM();
+        if (ctm) {
+          const pt = svg.createSVGPoint();
+          pt.x = checkX;
+          pt.y = checkY;
+          const svgPt = pt.matrixTransform(ctm.inverse());
+          const path = document.getElementById(`region-${dragId}`);
+          if (path && isOverRegion(svgPt, path)) correct = true;
+        }
+      } catch (err) {}
+  
+      if (correct) handleCorrect(dragId);
+      else handleWrong(dragId);
+  
+      dragId = null;
+      dragPiece = null;
+    }
+  
+    function handleCorrect(id) {
+      placed[id] = true;
+      const region = REGIONS.find(r => r.id === id);
+      const path = document.getElementById(`region-${id}`);
+      path.style.fill = region.color;
+      path.classList.add('filled');
+  
+      const label = document.getElementById(`label-${id}`);
+      if (label) label.classList.add('shown');
+  
+      const piece = document.querySelector(`.piece[data-region-id="${id}"]`);
+      if (piece) {
+        piece.classList.remove('dragging');
+        piece.classList.add('placed');
+      }
+  
+      playSuccess();
+      updateProgress();
+      saveState();  // שמירה אחרי כל הצלחה - המשתמש לא יאבד התקדמות
+  
+      if (Object.keys(placed).length === REGIONS.length) {
+        setTimeout(showWin, 700);
+      }
+    }
+  
+    function handleWrong(id) {
+      const piece = document.querySelector(`.piece[data-region-id="${id}"]`);
+      if (piece) {
+        piece.classList.remove('dragging');
+        piece.classList.add('shake');
+        setTimeout(() => piece.classList.remove('shake'), 450);
+      }
+      playWrong();
+    }
+  
+    function updateProgress() {
+      const progress = document.getElementById('progress');
+      progress.innerHTML = '';
+      const count = Object.keys(placed).length;
+      for (let i = 0; i < REGIONS.length; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot';
+        if (i < count) dot.classList.add('filled');
+        progress.appendChild(dot);
+      }
+    }
+  
+    function showWin(playEffects = true) {
+      const level = LEVELS[currentLevelKey];
+      const overlay = document.getElementById('winOverlay');
+      const winText = overlay.querySelector('.win-text');
+      if (winText) winText.textContent = level.winText;
+  
+      const nextBtn = document.getElementById('winNextBtn');
+      if (level.nextLevel && LEVELS[level.nextLevel]) {
+        nextBtn.style.display = '';
+        nextBtn.querySelector('.win-next-label').textContent = level.nextLabel || 'שלב הבא';
+      } else {
+        nextBtn.style.display = 'none';
+      }
+  
+      overlay.classList.remove('hidden');
+      if (playEffects) {
+        playWin();
+        spawnConfetti();
+      }
+    }
+  
+    function spawnConfetti() {
+      const colors = ['#5C8A4A', '#2A6F97', '#E8B83F', '#B83D2E', '#8E6E53', '#D4934A'];
+      for (let i = 0; i < 60; i++) {
+        setTimeout(() => {
+          const c = document.createElement('div');
+          c.className = 'confetti';
+          c.style.left = Math.random() * 100 + 'vw';
+          c.style.top = '-20px';
+          c.style.background = colors[Math.floor(Math.random() * colors.length)];
+          c.style.transform = `rotate(${Math.random() * 360}deg)`;
+          c.style.animationDuration = (1.8 + Math.random() * 1.2) + 's';
+          document.body.appendChild(c);
+          setTimeout(() => c.remove(), 3500);
+        }, i * 25);
+      }
+    }
+  
+    function restart() {
+      // טעינה מחדש של השלב הנוכחי (מאפסת ובונה הכל)
+      loadLevel(currentLevelKey);
+    }
+  
+    function playTone(freq, dur, type = 'sine') {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur);
+      } catch(e) {}
+    }
+  
+    function playSuccess() {
+      playTone(523, 0.1);
+      setTimeout(() => playTone(659, 0.1), 90);
+      setTimeout(() => playTone(784, 0.18), 180);
+    }
+  
+    function playWrong() { playTone(180, 0.25, 'sawtooth'); }
+  
+    function playWin() {
+      [523, 659, 784, 1047, 1319].forEach((n, i) => {
+        setTimeout(() => playTone(n, 0.18), i * 110);
+      });
+    }
+  
+    init();
+  </script>

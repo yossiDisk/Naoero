@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>העולם שלי</title>
+<meta name="theme-color" content="#7EC8F8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="world">
+  <div id="stage">
+    <div id="bgLayer"></div>
+    <div id="layer"></div>
+    <div id="fx"></div>
+  </div>
+  <div id="shade"></div>
+
+  <div id="tray"></div>
+  <div class="corner left">
+    <a class="btn small" id="btnHome" href="../" aria-label="חזרה לנאורו">🏠</a>
+    <button class="btn" id="btnMap" aria-label="מפה">🗺️</button>
+    <button class="btn small" id="btnSound" aria-label="צליל">🔊</button>
+    <button class="btn small" id="btnFull" aria-label="מסך מלא">⛶</button>
+  </div>
+  <div class="corner right">
+    <button class="btn" id="btnEdit" aria-label="עריכת דמות">✏️</button>
+    <button class="btn dress" id="btnDress" aria-label="החלפת בגדים">👗</button>
+  </div>
+</div>
+
+<!-- MAP -->
+<div id="map" class="overlay hidden">
+  <div class="map-card">
+    <h2>לאן הולכים?</h2>
+    <div id="mapGrid"></div>
+    <button class="btn close" data-close="map">✖</button>
+  </div>
+</div>
+
+<!-- WARDROBE (bottom sheet) -->
+<div id="wardrobe" class="hidden">
+  <div class="wd-head"><div id="wdTabs"></div><button class="btn small" id="wdClose">✖</button></div>
+  <div id="wdPanel"></div>
+  <div class="wd-hint">👆 נגיעה מלבישה את הדמות שנבחרה · אפשר גם לגרור בגד על דמות</div>
+</div>
+
+<!-- CREATOR -->
+<div id="creator" class="overlay hidden">
+  <div class="cr-wrap">
+    <div class="cr-left">
+      <div id="crPreview" class="char-preview"></div>
+      <div class="pedestal"></div>
+      <input id="crName" maxlength="12" placeholder="שם" autocomplete="off">
+      <div class="cr-actions">
+        <button class="btn big ok" id="crSave" aria-label="שמירה">✔</button>
+        <button class="btn" id="crRandom" aria-label="הפתעה">🎲</button>
+        <button class="btn" id="crCancel" aria-label="ביטול">✖</button>
+        <button class="btn danger" id="crDelete" aria-label="מחיקה">🗑️</button>
+      </div>
+    </div>
+    <div class="cr-right">
+      <div id="crTabs"></div>
+      <div id="crPanel"></div>
+    </div>
+  </div>
+</div>
+
+<script src="chars.js"></script>
+<script src="world.js"></script>
+<script src="zones2.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
